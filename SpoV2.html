@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versione 2</title>
+</head>
+
+<body>
+    <table border="1px">
+        <thead>
+          <tr>
+            <th>Autore</th>
+            <th>Titolo</th>
+            <th>Copertina album</th>
+            <th>Ascolta brano</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+    <script>
+        var access_token="BQA8QaBq1WiDndyAh-eALw5fPiCQRFY2pHNOwWabL-e7244cTlmeO5dvoSCfZrsLlOX70AEbIalj0VdC0mZBwZfk_3hmIKE45ScgoueuA3uW2E0shXI4oy11ZIHZU4QlQ_MbKXvBlb6FX8sa1KTge1k7Zbu3pBD2TE4MgukvrP30MtIAKG5q-Y0qAMF_75cRn_AIAtLKrT7estgX3QC9zvEG";
+        //var album_id="37i9dQZF1DWTC6XnyUt7U3";
+        var album_id = "09wqWIOKWuS6RwjBrXe08B" 
+        async function fetchAlbumData(){
+            try{
+                const response= await fetch(`https://api.spotify.com/v1/me/player/recently-played`,{
+                    headers:{
+                        'Authorization': 'Bearer '+ access_token
+                    }
+                });
+
+                if (!response.ok){
+                    throw new Error('Errore nella richiesta: '+response.status);
+                }
+                const userData = await response.json();
+                return userData;
+            }catch(error){
+                console.error("Errore durante la richiesta:", error)
+                return null;
+            }
+        }
+
+        async function renderTable(){
+            try{
+                const jsonData = await fetchAlbumData();
+                console.log(jsonData)
+                let tbody="";
+                let riga="";
+                for(track in jsonData["items"]){
+                    const artista = jsonData["items"][track]["track"]["artists"][0]["name"];
+                    const nomeCanzone= jsonData["items"][track]["track"]["name"];
+                    const copertina= jsonData["items"][track]["track"]["album"]["images"][2]["url"];
+                    const ascolta_brano= jsonData["items"][track]["track"]["external_urls"]["spotify"];
+                    riga += `<tr><td>${artista}</td><td>${nomeCanzone}</td><td><img src="${copertina}"></td><td><a target="_blank" href=${ascolta_brano}></td></tr>`
+                }
+                document.getElementById("tbody").innerHTML=riga;
+            }catch(error){
+                console.error("Errore");
+            }
+        }
+        renderTable()
+    </script>
+</body>
+</html>
